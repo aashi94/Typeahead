@@ -4,11 +4,12 @@ var Events = function(ui, domElement) {
   // this.api = api;
   this.urls = domElement.urlStart;
   this.urle = domElement.urlEnd;
-  this.keyArray = domElement.keyArray;
   this.key = domElement.key;
   // console.log("url start:" + this.urls);
   // console.log("url end:" + this.urle);
   this.timeout = null;
+
+  this.keyArray = domElement.keyArray;
 }
 
 Events.prototype = {
@@ -44,8 +45,11 @@ Events.prototype = {
             if (this.readyState == 4 && this.status == 200) {
               var myArr = JSON.parse(this.responseText);
               _this.ui.display(_this.ui.loadingBox, 'none');
-              // console.log("myArr.data"+myArr.data);
-              _this.ui.displaySearchResult(myArr[_this.keyArray], keyword);
+              // console.log("myArr.data"+myArr);
+
+              var traversed = _this.traversing(myArr,_this.keyArray);
+
+              _this.ui.displaySearchResult(traversed, keyword);
             }
           };
           xmlhttp.open("GET", url, true);
@@ -58,11 +62,12 @@ Events.prototype = {
   capture: function() {
     var _this = this;
     // console.log("keyboard val:"+this.keyboard);
-
     _this.ui.searchBox.on('keydown', function(e) {
 
       if ((e.keyCode == 40 || e.keyCode == 38)) {
         // if(this.keyboard=="true")
+        e.preventDefault();
+
         _this.ui.autocompleteOnDownArrow(e);
       } else if ((e.keyCode == 39) || (e.keyCode == 13)) {
         // if(this.keyboard=="true")
@@ -75,5 +80,14 @@ Events.prototype = {
       _this.ui.autocompleteOnClick(e, 'suggestion');
     });
 
+  },
+
+  traversing: function(mainObject , keyArr){
+    var tempObj= JSON.parse(JSON.stringify(mainObject));  //hollow copy
+    keyArr.forEach(function(val){
+      tempObj=tempObj[val];
+    });
+    console.log("array"+tempObj);
+    return tempObj;
   }
 }

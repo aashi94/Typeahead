@@ -14,6 +14,9 @@ var UI = function(domElement) {
   this.keyVal = domElement.keyboardProperty;
   key = domElement.key;
   // console.log("key:"+this.key);
+  found=false;
+  // console.log("element1 :"+this.inputSuggestion);
+suggestion="";
 }
 
 UI.prototype = {
@@ -25,6 +28,7 @@ UI.prototype = {
   displaySearchResult: function(dataArray, keyword) {
     var loop = "";
 
+    console.log(dataArray);
     if (dataArray.length == 0)
       loop += 'No Result';
     else {
@@ -33,9 +37,22 @@ UI.prototype = {
         // console.log("elemnt"+element[key]);
         element[key] = element[key].toLowerCase();
         var element = element[key];
-        element = element.replace(new RegExp(keyword, 'g'), '<span class="highlight">' + keyword + '</span>');
 
+        console.log("element at 0: "+element[0]+" keyword: "+keyword+" found "+found);
+        if(element[0] == keyword && found == false){
+          console.log("element2 :"+this.inputSuggestion);
+          // $(this.inputSuggestion).val(element);
+          suggestion=element;
+            found=true;
+            element = element.replace(new RegExp(keyword, 'g'), '<span class="highlight">' + keyword + '</span>');
+            loop += '<div class="display-suggestion active">' + element + '</div>';
+        }
+
+        else{
+        element = element.replace(new RegExp(keyword, 'g'), '<span class="highlight">' + keyword + '</span>');
         loop += '<div class="display-suggestion">' + element + '</div>';
+      }
+
       });
     }
     this.singleBox.html(loop);
@@ -44,8 +61,11 @@ UI.prototype = {
     //  console.log("active element"+document.activeElement.id);
     //  console.log("active elementa "+$("#"+document.activeElement.id).siblings("#suggestion-box").children("#single-suggestion").children(".display-suggestion").first());
 
-    $("#" + document.activeElement.id).siblings(this.suggestionBox).children(this.singleBox).children(".display-suggestion").first().addClass("active");
-    $(this.inputSuggestion).val($('div.active').text());
+    // $("#" + document.activeElement.id).siblings(this.suggestionBox).children(this.singleBox).children(".display-suggestion").first().addClass("active");
+    //  $(this.inputSuggestion).val($('div.active').text());
+    $(this.inputSuggestion).val(suggestion);
+    found=false;
+    suggestion="";
   },
 
   clear: function() {
@@ -54,15 +74,14 @@ UI.prototype = {
   },
 
 
-
   autocompleteOnRightArrow: function() {
     //console.log("bool"+this.autocompleteVal);
-    if (this.autocompleteVal == "true")
+    if (this.autocompleteVal == true)
       this.searchBox.val($(this.inputSuggestion).val());
   },
 
   autocompleteOnClick: function(e, className) {
-    if (this.autocompleteVal == "true") {
+    if (this.autocompleteVal == true) {
       if (e.target.className.indexOf(className) != -1) {
         var innerHTML = $(e.target).text(); /*or e.target.firstChild.nodeValue*/
         this.searchBox.val(innerHTML);
@@ -72,7 +91,7 @@ UI.prototype = {
   },
 
   autocompleteOnDownArrow: function(e) {
-    if (this.keyVal == "true") {
+    if (this.keyVal == true) {
       var $hlight = $("#" + document.activeElement.id).siblings(this.suggestionBox).children(this.singleBox).children('div.active');
 
       // var $div = $("#"+document.activeElement.id).siblings(this.suggestionBox).children(this.singleBox).children('div.display-suggestion');
